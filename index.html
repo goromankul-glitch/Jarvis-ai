@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JARVIS AI</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    background: #050b16;
+    color: #00e5ff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+}
+
+h1 {
+    letter-spacing: 7px;
+    margin-top: 35px;
+    text-shadow: 0 0 15px #00e5ff;
+}
+
+.subtitle {
+    color: #8ba8c8;
+    font-size: 12px;
+    letter-spacing: 2px;
+}
+
+.orb {
+    width: 140px;
+    height: 140px;
+    border: 2px solid #00e5ff;
+    border-radius: 50%;
+    margin: 35px auto;
+    display: grid;
+    place-items: center;
+    font-size: 55px;
+    box-shadow: 0 0 25px #00e5ff,
+                inset 0 0 25px #0077ff;
+}
+
+.status {
+    color: #7dffbd;
+    margin: 20px;
+}
+
+input {
+    width: 100%;
+    max-width: 420px;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #00e5ff;
+    background: #101d30;
+    color: white;
+    font-size: 16px;
+}
+
+button {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    margin: 12px auto;
+    padding: 15px;
+    background: #00d9ff;
+    border: none;
+    border-radius: 8px;
+    color: #04101c;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+#answer {
+    max-width: 420px;
+    margin: 25px auto;
+    padding: 18px;
+    background: #101d30;
+    border: 1px solid #164765;
+    border-radius: 10px;
+    color: white;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+footer {
+    color: #67809d;
+    font-size: 12px;
+    margin-top: 40px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>J.A.R.V.I.S.</h1>
+<p class="subtitle">PERSONAL ASSISTANT SYSTEM</p>
+
+<div class="orb">🤖</div>
+
+<p class="status" id="status">● SYSTEM ONLINE</p>
+
+<input id="question"
+       placeholder="Enter a command, sir..."
+       onkeydown="if(event.key==='Enter') askJarvis()">
+
+<button onclick="askJarvis()">EXECUTE COMMAND</button>
+<button onclick="listen()">🎤 SPEAK TO JARVIS</button>
+<button onclick="stopVoice()">🔇 STOP SPEAKING</button>
+
+<div id="answer">
+    Welcome, sir. JARVIS is ready to assist you.
+</div>
+
+<footer>
+JARVIS MOBILE PROTOTYPE · VERSION 1.0
+</footer>
+
+<script>
+function speak(text) {
+    if (!("speechSynthesis" in window)) return;
+
+    speechSynthesis.cancel();
+
+    const voice = new SpeechSynthesisUtterance(text);
+    voice.lang = "en-US";
+    voice.rate = 0.95;
+
+    speechSynthesis.speak(voice);
+}
+
+function stopVoice() {
+    if ("speechSynthesis" in window) {
+        speechSynthesis.cancel();
+    }
+    document.getElementById("status").textContent =
+        "● VOICE STOPPED";
+}
+
+function reply(text) {
+    document.getElementById("answer").textContent = text;
+    document.getElementById("status").textContent =
+        "● COMMAND COMPLETE";
+    speak(text);
+}
+
+function askJarvis() {
+    const box = document.getElementById("question");
+    const command = box.value.trim().toLowerCase();
+
+    if (!command) {
+        reply("Please enter a command, sir.");
+        return;
+    }
+
+    document.getElementById("status").textContent =
+        "● PROCESSING";
+
+    if (command.includes("hello")) {
+        reply("Hello, sir. JARVIS is online and ready.");
+    } else if (command.includes("your name")) {
+        reply("I am JARVIS, your personal assistant.");
+    } else if (command.includes("time")) {
+        reply("The current time is " +
+            new Date().toLocaleTimeString());
+    } else if (command.includes("date")) {
+        reply("Today's date is " +
+            new Date().toLocaleDateString());
+    } else if (command.includes("who created you")) {
+        reply("You are building me, sir. Together, we will improve my capabilities.");
+    } else if (command.includes("what can you do")) {
+        reply("I can respond to simple commands, tell you the time and date, and speak my responses. My AI connection is not installed yet.");
+    } else if (command.includes("help")) {
+        reply("Try saying hello, asking for the time or date, or asking what I can do.");
+    } else if (command.includes("goodbye")) {
+        reply("Goodbye, sir. JARVIS standing by.");
+    } else {
+        reply("I cannot answer that question yet, sir. My advanced AI brain will be connected in a future version.");
+    }
+}
+
+function listen() {
+    const Recognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!Recognition) {
+        reply("Voice recognition is not supported by this browser. Please type your command instead.");
+        return;
+    }
+
+    const recognition = new Recognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    document.getElementById("status").textContent =
+        "● LISTENING";
+
+    recognition.onresult = function(event) {
+        document.getElementById("question").value =
+            event.results[0][0].transcript;
+        askJarvis();
+    };
+
+    recognition.onerror = function() {
+        document.getElementById("status").textContent =
+            "● MICROPHONE ERROR — CHECK PERMISSIONS";
+    };
+
+    recognition.start();
+}
+</script>
+
+</body>
+</html>
